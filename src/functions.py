@@ -72,3 +72,28 @@ def getTrainTest(X, y, ratio=0.8, valid=0., seed=1789, subset = 1.):
         return np.array(train), np.array(test)
     else:
         return np.array(train), np.array(test), np.array(val)
+        
+def extract_piecewise_var(X, w_size = 10):
+    '''
+    Take increments of the time series and Compute piece-wise variances of 
+    the increments (segments of length 10 by default)
+    ---
+    X : the feature matrix
+    ratio : the proportion of observations to assign to the train set
+    val : proportion of the train to keep for validation
+    seed : seed when splitting
+    subset : draw only a subset of the data, float between 0 and 1
+    '''
+    n = X.shape[0] # number of observations
+    p = X.shape[1] # number of features/times
+        
+    # Tuples delimiting segments for the filtered signal
+    var_segments = zip(np.arange(0, p, w_size), 
+                       np.arange(0, p+w_size, w_size) + w_size)
+                       
+    # Computing variances on each of those segments
+    var_features = np.zeros((n,len(var_segments)))
+    for i, (a,b) in enumerate(var_segments):
+        var_features[:,i] = np.diff(X[:,range(a,b)]).var(axis=1)
+    
+    return var_features

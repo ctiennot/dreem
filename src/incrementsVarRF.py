@@ -15,32 +15,16 @@ X, y = fun.load_quality_dataset()
 # Generate train and test sets
 train, test = fun.getTrainTest(X, y, subset=1)
 
-w_size = 10 # window size to design segments
+# Computing piece-wise and overall variances for raw and filtered signals
+var_features_filtered = fun.extract_piecewise_var(X[:,500:1000], w_size=10)
+var_filtered = fun.extract_piecewise_var(X[:,500:1000], w_size=500)      
+var_features_raw = fun.extract_piecewise_var(X[:,0:500], w_size=10)
+var_raw = fun.extract_piecewise_var(X[:,0:500], w_size=500)   
 
-# Tuples delimiting segments for the filtered signal
-var_segments = zip(np.arange(500, 1000, w_size), 
-                   np.arange(500, 1000+w_size, w_size) + w_size)
-                   
-# Computing variances on each of those segments
-var_features = np.zeros((X.shape[0],len(var_segments)))
-for i, (a,b) in enumerate(var_segments):
-    var_features[:,i] = np.diff(X[:,range(a,b)]).var(axis=1)
+# Stacking all the features (50 + 1 + 50 + 1)
+var_features = np.hstack((var_features_filtered, var_filtered, 
+                          var_features_raw, var_raw))
 
-# Adding the global variance as a last feature
-var_features = np.hstack((var_features, 
-                          np.diff(X[:,500:1000]).var(axis=1).reshape(-1,1)))
-
-#######################################                
-var_features_raw = np.zeros((X.shape[0],len(var_segments)))
-for i, (a,b) in enumerate(var_segments):
-    var_features_raw[:,i] = np.diff(X[:,range(a-500,b-500)]).var(axis=1)
-
-# Adding the global variance as a last feature
-var_features_raw = np.hstack((var_features_raw, 
-                          np.diff(X[:,0:500]).var(axis=1).reshape(-1,1)))
-
-var_features = np.hstack((var_features, var_features_raw))
-#########################################
 # Fitting a Random Forest on top
 rf = RandomForestClassifier(n_estimators=100, verbose=1, n_jobs=8)
 rf = rf.fit(var_features[train], y[train])
