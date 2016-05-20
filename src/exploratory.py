@@ -49,3 +49,21 @@ plt.figure()
 plt.hist(mean_v[pos], bins=50, color=(.8,.8,.8,1.))
 plt.hist(mean_v[neg], bins=50, color=(1.,0.,0.,.6))
 plt.title("Distribution of means")
+
+# Look at random trajectories in the data after taking increments
+plt.figure()
+axes = plt.gca()
+axes.set_ylim([-500,500])
+for i in np.random.choice(pos, 300, False):
+    plt.plot(range(499), np.diff(X[i,500:1000]), color=(.8,.8,.8))
+for i in np.random.choice(neg, 300, False):
+    plt.plot(range(499), np.diff(X[i,500:1000]), color=(1.,0.,0.,.6))
+plt.title("Random trajectories")
+plt.show()
+
+# Distribution of log-variances for increments
+var_increments = np.diff(X[:,500:1000]).var(axis=1)
+plt.figure()
+plt.hist(np.log(var_increments[pos]), bins=50, color=(.8,.8,.8,1.))
+plt.hist(np.log(var_increments[neg]), bins=50, color=(1.,0.,0.,.6))
+plt.title("Distribution of log-variances")
