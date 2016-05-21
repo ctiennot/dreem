@@ -76,4 +76,21 @@ var_increments = np.diff(X[:,500:1000]).var(axis=1)
 plt.figure()
 plt.hist(np.log(var_increments[pos]), bins=50, color=(.8,.8,.8,1.))
 plt.hist(np.log(var_increments[neg]), bins=50, color=(1.,0.,0.,.6))
-plt.title("Distribution of log-variances")
+plt.xlabel("log(Var(EEG_t+1 - EEG_t))")
+plt.ylabel("Count")
+plt.title("Distribution of increments log-variances\n")
+plt.show()
+
+# Computing and ploting the ACF for filtered signal increments
+intACF_v = np.array(map(fun.acf, np.diff(X[:,500:1000])))
+
+# Distribution of intACF
+f, axs = plt.subplots(3,3)
+f.tight_layout()
+for i in range(3):
+    for j in range(3):
+        k = i*3+j
+        axs[i][j].set_xlim([-1,1])
+        axs[i][j].hist(intACF_v[pos,k], bins=50, color=(.8,.8,.8,1.))
+        axs[i][j].hist(intACF_v[neg,k], bins=50, color=(1.,0.,0.,.6))
+        axs[i][j].set_title("Autocorrelation k="+str(k))
