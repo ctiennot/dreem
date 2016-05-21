@@ -121,3 +121,12 @@ def loadModel(name):
     with open("../models/"+name+".pkl", 'rb') as input:
         model = pickle.load(input)
     return model
+    
+def acf(x, length=9):
+    ''' Return the AFC (Auto Correlation Functions) of a time series
+    ----
+    x: array representing the time series
+    length: number of ACF to return
+    '''
+    return np.array([1]+[np.corrcoef(x[:-i], x[i:])[0,1] \
+                                for i in range(1, length)])
