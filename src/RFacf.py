@@ -5,7 +5,6 @@ Random Forest on top of ACF
 import functions as fun
 from sklearn.metrics import log_loss
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble.gradient_boosting import GradientBoostingClassifier
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -54,4 +53,4 @@ plt.bar(range(rf_importance.shape[0]), rf_importance)
 plt.show()
 
 ## Export model using pickle
-fun.saveModel(rf, "RF_acf")
+# fun.saveModel(rf, "RF_acf")

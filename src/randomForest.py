@@ -31,6 +31,7 @@ print 'Multiclass log-loss =', log_loss(y[test], probs_rf)
 
 # The importance of the features
 rf_importance = rf.feature_importances_
+plt.figure()
 plt.bar(range(rf_importance.shape[0]), rf_importance)
 plt.show()
 

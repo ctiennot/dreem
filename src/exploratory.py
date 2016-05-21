@@ -11,16 +11,16 @@ np.random.seed(seed=1789)
 # Load data
 X, y = fun.load_quality_dataset()
 
-pos = np.array(range(y.shape[0]))[y==1.] # good signal index
-neg = np.array(range(y.shape[0]))[y==0.] # bad signal index
+neg = np.array(range(y.shape[0]))[y==1.] # bad signal index
+pos = np.array(range(y.shape[0]))[y==0.] # good signal index
 
 # Look at random trajectories in the data
 plt.figure()
 axes = plt.gca()
 axes.set_ylim([-500,500])
-for i in np.random.choice(pos, 300, False):
-    plt.plot(range(500), X[i,500:1000], color=(.8,.8,.8))
 for i in np.random.choice(neg, 300, False):
+    plt.plot(range(500), X[i,500:1000], color=(.8,.8,.8))
+for i in np.random.choice(pos, 300, False):
     plt.plot(range(500), X[i,500:1000], color=(1.,0.,0.,.6))
 plt.title("Random trajectories\n")
 plt.xlabel("Time (1 unit = 4 ms)")
