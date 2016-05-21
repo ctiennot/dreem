@@ -7,7 +7,7 @@ import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import confusion_matrix
-
+import cPickle as pickle
 
 # Plot a confusion matrix given labels and predictions
 def plotCM(labels, preds):
@@ -97,3 +97,27 @@ def extract_piecewise_var(X, w_size = 10):
         var_features[:,i] = np.diff(X[:,range(a,b)]).var(axis=1)
     
     return var_features
+
+# Save a model as a pickle file in "../models"
+def saveModel(model, name):
+    ''' Save a model (or a python object) as a pickle file into
+    ../models/name.pkl
+    ---
+    model: a python model/object
+    name: a string with the name of the file    
+    '''
+    print 'Saving model...'
+    with open("../models/"+name+".pkl", 'wb') as output:
+        pickle.dump(model, output, -1)
+    del model
+    
+# Load a model from "../models"
+def loadModel(name):
+    ''' Load a model (or a python object) as a pickle file from
+    ../models/name.pkl
+    ---
+    name: a string with the name of the file    
+    '''
+    with open("../models/"+name+".pkl", 'rb') as input:
+        model = pickle.load(input)
+    return model
