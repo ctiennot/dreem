@@ -41,7 +41,8 @@ def predict_quality(record, model="RF_variances", filtered_signal = False,
         '''quick function to extract piece-wise variance functions'''
         # Computing piece-wise and overall variances for raw and filtered
         # signals
-        var_features_filtered = fun.extract_piecewise_var(X[:,500:1000], w_size=10)
+        var_features_filtered = fun.extract_piecewise_var(X[:,500:1000],
+                                                          w_size=10)
         var_filtered = fun.extract_piecewise_var(X[:,500:1000], w_size=500)      
         var_features_raw = fun.extract_piecewise_var(X[:,0:500], w_size=10)
         var_raw = fun.extract_piecewise_var(X[:,0:500], w_size=500)   
@@ -75,8 +76,11 @@ def predict_quality(record, model="RF_variances", filtered_signal = False,
     y_pred = [np.tile(y_pred[i],(500,1)).T.reshape((-1)) for i in range(4)]
     
     # fill in the last measurements with missing values
-    na_array = np.ndarray(raws.shape[1] - y_pred[0].shape[0])*np.nan
-    y_pred = [np.hstack((y_pred[i],na_array)) for i in range(4)]
+    #na_array = np.ndarray(raws.shape[1] - y_pred[0].shape[0])*np.nan
+    #y_pred = [np.hstack((y_pred[i],na_array)) for i in range(4)]
+    
+    # cut the extra predictions used to complete the last window
+    y_pred = map(lambda x: x[range(filtered.shape[1])], y_pred)
     
     # stack the 4 channels predictions and return them
     if filtered_signal:
@@ -130,4 +134,4 @@ if __name__ == "__main__" and benchmark:
     print "\nAccuracies per channel: \n"
     for i, cm_i in enumerate(cm):
         if cm_i.shape[0]>0:
-            print "Channel", i, ": ", round(np.diag(cm[i]).sum(),2)
+            print "Channel", i, ": ", round(np.diag(cm[i]).sum(),4)

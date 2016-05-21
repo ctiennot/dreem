@@ -19,9 +19,10 @@ def plotCM(labels, preds):
     plt.xlabel('Predicted label')
     plt.show()
     
-def load_quality_dataset(ratio=0.5, valid=0., seed=1789):
+def load_quality_dataset():
     '''
-    Load the data from quality_dataset.h5 and split them in train/val/test sets
+    Load the data from quality_dataset.h5 and split them in 
+    train/val/test sets
     ---
     Returns a tuple with (X, y) with np.arrays
     '''
@@ -134,7 +135,8 @@ def acf(x, length=9):
 def extract_windows(ts, w_size=500):   
     """ Function that reshape the signal to get an array where each line
     is a 2s window bby default (i.e. 500 measurements). If the time series
-    length is not a 500 multiple then last measurements are ignored.
+    length is not a 500 multiple then the last window reuses previous
+    observations to be completed
     
     Input
     =====
@@ -145,5 +147,8 @@ def extract_windows(ts, w_size=500):
     ======
     Reshaped array with shape (?,w_size).
     """
-    n = len(ts)/w_size*w_size # last measurements arre cut
-    return ts[range(n)].reshape((-1, w_size))
+    # last measurements are cut at first
+    n = len(ts)/w_size*w_size
+    # 500 last will be appended to the cut version of ts
+    last_500 = ts[np.arange(len(ts))[-w_size:]]    
+    return np.vstack((ts[range(n)].reshape((-1, w_size)), last_500))
