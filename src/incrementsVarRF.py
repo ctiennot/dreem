@@ -45,3 +45,6 @@ rf_importance = rf.feature_importances_
 plt.figure()
 plt.bar(range(rf_importance.shape[0]), rf_importance)
 plt.show()
+
+## Export model using pickle
+#fun.saveModel(rf, "RF_variances")

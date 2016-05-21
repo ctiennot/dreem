@@ -22,7 +22,9 @@ for i in np.random.choice(pos, 300, False):
     plt.plot(range(500), X[i,500:1000], color=(.8,.8,.8))
 for i in np.random.choice(neg, 300, False):
     plt.plot(range(500), X[i,500:1000], color=(1.,0.,0.,.6))
-plt.title("Random trajectories")
+plt.title("Random trajectories\n")
+plt.xlabel("Time (1 unit = 4 ms)")
+plt.ylabel("EEG (mV)")
 plt.show()
 
 # The max values for each line
@@ -36,13 +38,19 @@ mean_v = X[:,500:1000].mean(axis=1)
 plt.figure()
 plt.hist(np.log(amp_v[pos]), bins=50, color=(.8,.8,.8,1.))
 plt.hist(np.log(amp_v[neg]), bins=50, color=(1.,0.,0.,.6))
-plt.title("Distribution of log-amplitudes")
+plt.xlabel("log(Amp(EEG))")
+plt.ylabel("Count")
+plt.title("Distribution of log-amplitudes\n")
+plt.show()
 
 # Distribution of log-variances
 plt.figure()
 plt.hist(np.log(var_v[pos]), bins=50, color=(.8,.8,.8,1.))
 plt.hist(np.log(var_v[neg]), bins=50, color=(1.,0.,0.,.6))
-plt.title("Distribution of log-variances")
+plt.xlabel("log(Var(EEG))")
+plt.ylabel("Count")
+plt.title("Distribution of log-variances\n")
+plt.show()
 
 # Distribution of means
 plt.figure()
@@ -59,6 +67,8 @@ for i in np.random.choice(pos, 300, False):
 for i in np.random.choice(neg, 300, False):
     plt.plot(range(499), np.diff(X[i,500:1000]), color=(1.,0.,0.,.6))
 plt.title("Random trajectories")
+plt.xlabel("Time (1 unit = 4 ms)")
+plt.ylabel("EEG (mV)")
 plt.show()
 
 # Distribution of log-variances for increments
