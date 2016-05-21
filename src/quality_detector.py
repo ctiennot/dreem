@@ -4,9 +4,11 @@ from easy_import import extract_signals
 import numpy as np
 import functions as fun
 import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.metrics import confusion_matrix
 
-
-def predict_quality(record, model="RF_variances", filtered_signal = False):
+def predict_quality(record, model="RF_variances", filtered_signal = False,
+                    probas = False):
     """Predict the quality of the signal.
 
     Input
@@ -15,12 +17,15 @@ def predict_quality(record, model="RF_variances", filtered_signal = False):
     model: pickle model to use
     filtered_signal: if true then return the input signal array as the second
     element of a tuple
+    probas: if true returns estimated probability of bad quality instead of
+    predictions
 
     Output
     ======
     results: a list of 4 signals between 0 and 1 estimating the quality
     of the 4 channels of the record at each timestep.
     This results must have the same size as the channels.
+    0 is good quality, 1 is bad quality
     """
     # Extract signals from record
     raws, filtered = extract_signals(record)
@@ -53,10 +58,18 @@ def predict_quality(record, model="RF_variances", filtered_signal = False):
     print "Predicting..."
     
     # Apply preprocessing according to the model chosen
-    if model=="RF_variances":
-        y_pred = [rf.predict(create_X(X)) for X in X_channels]
+    if probas:
+        # we predict probas instead of labels
+        if model=="RF_variances":
+            y_pred = [rf.predict_proba(create_X(X)) for X in X_channels]
+        else:
+            y_pred = [rf.predict_proba(X) for X in X_channels]
     else:
-        y_pred = [rf.predict(X) for X in X_channels]
+        # predict labels
+        if model=="RF_variances":
+            y_pred = [rf.predict(create_X(X)) for X in X_channels]
+        else:
+            y_pred = [rf.predict(X) for X in X_channels]
     
     # duplicate predictions and reshape
     y_pred = [np.tile(y_pred[i],(500,1)).T.reshape((-1)) for i in range(4)]
@@ -77,7 +90,6 @@ if __name__ == "__main__":
     results, filtered = predict_quality(record, filtered_signal=True)
     
 visualize = True # plot some predictions
-
 if __name__ == "__main__" and visualize:
     subset = np.arange(100000, 1000000,1) # time range
     ch = range(4) # channels to plot
@@ -91,4 +103,31 @@ if __name__ == "__main__" and visualize:
         axs[i].set_title("Channel "+str(i))
         axs[i].axes.get_xaxis().set_visible(False)
         axs[i].axes.get_yaxis().set_visible(False)
+
+benchmark = True # test accuracy
+if __name__ == "__main__" and benchmark:
+    # we will use labels available to benchmark the model
+    # import labels
+    bad_qual = pd.read_csv("../data/record1_bad_quality.csv").values
+    good_qual = pd.read_csv("../data/record1_good_quality.csv").values
+    
+    ((bad_qual == 1) & (good_qual == 1)).sum() # check for inconsistencies
+    
+    labels = -1 + good_qual + 2*bad_qual  # 0: good, -1: no information, 1: bad
+    
+    # compute confusion matrix for each channel on the labelled instant
+    # (only the first two channels have labels actually)
+    cm = []
+    print "Confusion matrices per channel: \n"
+    for i in range(4):
+        preds = results[i,:][(labels[:,i]>-1).T]
+        actual = labels[:,i][(labels[:,i]>-1)].T
+        cm.append((confusion_matrix(actual,preds)*1./(labels[:,i]>-1).\
+            sum()).round(4))
+        print "Channel", i, "\n", cm[i]
         
+    # display accuracy
+    print "\nAccuracies per channel: \n"
+    for i, cm_i in enumerate(cm):
+        if cm_i.shape[0]>0:
+            print "Channel", i, ": ", round(np.diag(cm[i]).sum(),2)
