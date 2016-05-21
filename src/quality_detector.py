@@ -6,12 +6,13 @@ import functions as fun
 import matplotlib.pyplot as plt
 
 
-def predict_quality(record, filtered_signal = False):
+def predict_quality(record, model="RF_variances", filtered_signal = False):
     """Predict the quality of the signal.
 
     Input
     =====
     record: path to a record
+    model: pickle model to use
     filtered_signal: if true then return the input signal array as the second
     element of a tuple
 
@@ -29,13 +30,33 @@ def predict_quality(record, filtered_signal = False):
     X_channels = (np.hstack((fun.extract_windows(raws[i,:]),
                   fun.extract_windows(filtered[i,:]))) 
                   for i in range(4))
+                      
+    # quick function to extract features (piece-wise variances)
+    def create_X(X):
+        '''quick function to extract piece-wise variance functions'''
+        # Computing piece-wise and overall variances for raw and filtered
+        # signals
+        var_features_filtered = fun.extract_piecewise_var(X[:,500:1000], w_size=10)
+        var_filtered = fun.extract_piecewise_var(X[:,500:1000], w_size=500)      
+        var_features_raw = fun.extract_piecewise_var(X[:,0:500], w_size=10)
+        var_raw = fun.extract_piecewise_var(X[:,0:500], w_size=500)   
+
+        # Stacking all the features (50 + 1 + 50 + 1)
+        var_features = np.hstack((var_features_filtered, var_filtered, 
+                                  var_features_raw, var_raw))
+        return var_features
     
     # Load pickle model (Random Forest here)
-    rf = fun.loadModel("RF_benchmark")
-    
+    rf = fun.loadModel(model)
+
     # predict classes
     print "Predicting..."
-    y_pred = [rf.predict(X) for X in X_channels]
+    
+    # Apply preprocessing according to the model chosen
+    if model=="RF_variances":
+        y_pred = [rf.predict(create_X(X)) for X in X_channels]
+    else:
+        y_pred = [rf.predict(X) for X in X_channels]
     
     # duplicate predictions and reshape
     y_pred = [np.tile(y_pred[i],(500,1)).T.reshape((-1)) for i in range(4)]
