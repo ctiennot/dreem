@@ -130,3 +130,20 @@ def acf(x, length=9):
     '''
     return np.array([1]+[np.corrcoef(x[:-i], x[i:])[0,1] \
                                 for i in range(1, length)])
+                                    
+def extract_windows(ts, w_size=500):   
+    """ Function that reshape the signal to get an array where each line
+    is a 2s window bby default (i.e. 500 measurements). If the time series
+    length is not a 500 multiple then last measurements are ignored.
+    
+    Input
+    =====
+    ts: one dimensional np.array (time series)
+    w_size: int, windows size (default is 500)
+    
+    Output
+    ======
+    Reshaped array with shape (?,w_size).
+    """
+    n = len(ts)/w_size*w_size # last measurements arre cut
+    return ts[range(n)].reshape((-1, w_size))
