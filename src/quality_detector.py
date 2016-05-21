@@ -93,7 +93,12 @@ if __name__ == "__main__":
     record = "../data/record1.h5"
     results, filtered = predict_quality(record, filtered_signal=True)
     
-visualize = True # plot some predictions
+predict_record2 = False # predict labels for the other dataset
+if __name__ == "__main__" and predict_record2:
+    record2 = "../data/record2.h5"
+    results2, filtered2 = predict_quality(record2, filtered_signal=True)
+
+visualize = False # plot some predictions
 if __name__ == "__main__" and visualize:
     subset = np.arange(100000, 1000000,1) # time range
     ch = range(4) # channels to plot
@@ -108,7 +113,7 @@ if __name__ == "__main__" and visualize:
         axs[i].axes.get_xaxis().set_visible(False)
         axs[i].axes.get_yaxis().set_visible(False)
 
-benchmark = True # test accuracy
+benchmark = False # test accuracy
 if __name__ == "__main__" and benchmark:
     # we will use labels available to benchmark the model
     # import labels
